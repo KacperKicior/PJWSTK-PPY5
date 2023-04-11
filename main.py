@@ -1,7 +1,10 @@
 import smtplib
 import os.path
+from email.mime.multipart import MIMEMultipart
 
 # Stałe z danymi dotyczącymi pliku
+from email.mime.text import MIMEText
+
 NAZWA_PLIKU = "students.txt"
 ROZDZIELACZ = ","
 
@@ -83,7 +86,14 @@ def wyslij_email():
     smtp_server = smtplib.SMTP("poczta.interia.pl",587)
     smtp_server.starttls()
     smtp_server.login("pablo.sarmiento", "ReaktorWytrzymaXD")
-    smtp_server.sendmail("pablo.sarmiento@interia.pl","anatolijxd@interia.pl","1986 called, watch out for your 4th reactor")
+    message = MIMEMultipart()
+    message["From"]="Pablo"
+    message["To"]="Anatolij"
+    message["Subject"]="DaSvidania"
+    body="Anatolij, 1986 here watch out for your 4th reactor, i suspect its gonna blow up"
+    message.attach(MIMEText(body,"plain"))
+    text = message.as_string()
+    smtp_server.sendmail("pablo.sarmiento@interia.pl","anatolijxd@interia.pl",text)
     smtp_server.quit()
 
     # # Tworzenie wiadomości email
@@ -138,15 +148,16 @@ while True:
         else:
             print("Student o podanym adresie email już istnieje.")
     elif wybor == "4":
-        tresc = input("Podaj treść wiadomości: ")
-        for email, dane in studenci.items():
-            if dane["status"] != "MAILED":
-                if wyslij_email():
-                    dane["status"] = "MAILED"
-                    zapisz_dane()
-                    print(f"Email został wysłany na adres {email}.")
-                else:
-                    print(f"Błąd podczas wysyłania emaila na adres {email}.")
+        wyslij_email()
+        # tresc = input("Podaj treść wiadomości: ")
+        # for email, dane in studenci.items():
+        #     if dane["status"] != "MAILED":
+        #         if wyslij_email():
+        #             dane["status"] = "MAILED"
+        #             zapisz_dane()
+        #             print(f"Email został wysłany na adres {email}.")
+        #         else:
+        #             print(f"Błąd podczas wysyłania emaila na adres {email}.")
     elif wybor == "5":
         break
     else:
