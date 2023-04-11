@@ -78,31 +78,31 @@ def dodaj_studenta(email, imie, nazwisko, punkty):
 
 
 # Funkcja wysyłająca email
-def wyslij_email(email, tresc):
+def wyslij_email():
     # Dane dotyczące serwera SMTP i konta
-    SMTP_SERVER = "smtp.wp.pl"
-    SMTP_PORT = 465
-    EMAIL_ADRES = "antoniodelgado@wp.pl"
-    EMAIL_HASLO = "ZAQ!2wsx"
-    EMAIL_NADAWCA = "Antonio Delgado Mexico Cartel"
+    smtp_server = smtplib.SMTP("poczta.interia.pl",587)
+    smtp_server.starttls()
+    smtp_server.login("pablo.sarmiento", "ReaktorWytrzymaXD")
+    smtp_server.sendmail("pablo.sarmiento@interia.pl","anatolijxd@interia.pl","1986 called, watch out for your 4th reactor")
+    smtp_server.quit()
 
-    # Tworzenie wiadomości email
-    msg = f"From: {EMAIL_NADAWCA} <{EMAIL_ADRES}>\n"
-    msg += f"To: {email}\n"
-    msg += "Subject: Ocena z przedmiotu Podstawy Programowania Python\n\n"
-    msg += tresc
-
-    # Wysyłanie wiadomości email
-    try:
-        server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
-        server.starttls()
-        server.login(EMAIL_ADRES, EMAIL_HASLO)
-        server.sendmail(EMAIL_ADRES, email, msg)
-        server.quit()
-        return True
-    except Exception as e:
-        print(f"Błąd podczas wysyłania emaila na adres {email}: {str(e)}")
-        return False
+    # # Tworzenie wiadomości email
+    # msg = f"From: {EMAIL_NADAWCA} <{EMAIL_ADRES}>\n"
+    # msg += f"To: {email}\n"
+    # msg += "Subject: Ocena z przedmiotu Podstawy Programowania Python\n\n"
+    # msg += tresc
+    #
+    # # Wysyłanie wiadomości email
+    # try:
+    #     server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
+    #     server.starttls()
+    #     server.login(EMAIL_ADRES, EMAIL_HASLO)
+    #     server.sendmail(EMAIL_ADRES, email, msg)
+    #     server.quit()
+    #     return True
+    # except Exception as e:
+    #     print(f"Błąd podczas wysyłania emaila na adres {email}: {str(e)}")
+    #     return False
 
 
 # Wczytanie danych z pliku
@@ -141,7 +141,7 @@ while True:
         tresc = input("Podaj treść wiadomości: ")
         for email, dane in studenci.items():
             if dane["status"] != "MAILED":
-                if wyslij_email(email, tresc):
+                if wyslij_email():
                     dane["status"] = "MAILED"
                     zapisz_dane()
                     print(f"Email został wysłany na adres {email}.")
