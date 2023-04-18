@@ -1,3 +1,5 @@
-test@gmail.com,lukasz,kwasniewicz,85,db,GRADED
-adamadamski@gmail.com,adam,adamski,51,dst,GRADED
-kk@o2.pl,kosda,reh,100,bdb,GRADED
+test@gmail.com,lukasz,kwasniewicz,85,db+,MAILED
+adamadamski@gmail.com,adam,adamski,51,dst,MAILED
+kk@o2.pl,kosda,reh,100,bdb,MAILED
+plukas@o2.pl,pawel,lukas,41,ndst,MAILED
+jasscro@paw.edu.eu,jas,scro,51,,

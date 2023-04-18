@@ -1,28 +1,26 @@
 import smtplib
 import os.path
 from email.mime.multipart import MIMEMultipart
-
-# Stałe z danymi dotyczącymi pliku
 from email.mime.text import MIMEText
 
-NAZWA_PLIKU = "students.txt"
-ROZDZIELACZ = ","
+filename = "students.txt"
+divider = ","
 
-# Stałe z danymi dotyczącymi ocen
-OCENA_MINIMALNA = 30
-OCENA_DOBRA = 60
-OCENA_BARDZO_DOBRA = 90
+OCENA_3 = 51
+OCENA_35 = 61
+OCENA_4 = 71
+OCENA_45 = 81
+OCENA_5 = 91
 
-# Słownik przechowujący dane studentów
 studenci = {}
 
-# Funkcja wczytująca dane z pliku
+
 def wczytaj_dane():
-    if not os.path.isfile(NAZWA_PLIKU):
+    if not os.path.isfile(filename):
         return
-    with open(NAZWA_PLIKU, "r") as plik:
+    with open(filename, "r") as plik:
         for linia in plik:
-            dane = linia.strip().split(ROZDZIELACZ)
+            dane = linia.strip().split(divider)
             if len(dane) < 4:
                 continue
             email, imie, nazwisko, punkty = dane[:4]
@@ -38,35 +36,39 @@ def wczytaj_dane():
                 "status": status
             }
 
-# Funkcja zapisująca dane do pliku
+
 def zapisz_dane():
-    with open(NAZWA_PLIKU, "w") as plik:
+    with open(filename, "w") as plik:
         for email, dane in studenci.items():
-            linia = f"{email}{ROZDZIELACZ}{dane['imie']}{ROZDZIELACZ}{dane['nazwisko']}{ROZDZIELACZ}{dane['punkty']}{ROZDZIELACZ}{dane['ocena']}{ROZDZIELACZ}{dane['status']}\n"
+            linia = f"{email}{divider}{dane['imie']}{divider}{dane['nazwisko']}{divider}{dane['punkty']}{divider}{dane['ocena']}{divider}{dane['status']}\n"
             plik.write(linia)
 
-# Funkcja automatycznie wystawiająca ocenę studentom
+
 def wystaw_oceny():
     for email, dane in studenci.items():
         if dane["status"] != "":
             continue
         punkty = dane["punkty"]
-        if punkty >= OCENA_BARDZO_DOBRA:
+        if punkty >= OCENA_5:
             dane["ocena"] = "bdb"
-        elif punkty >= OCENA_DOBRA:
+        elif punkty >= OCENA_45:
+            dane["ocena"] = "db+"
+        elif punkty >= OCENA_4:
             dane["ocena"] = "db"
-        elif punkty >= OCENA_MINIMALNA:
+        elif punkty >= OCENA_35:
+            dane["ocena"] = "dst+"
+        elif punkty >= OCENA_3:
             dane["ocena"] = "dst"
         else:
             dane["ocena"] = "ndst"
         dane["status"] = "GRADED"
 
-# Funkcja usuwająca studenta
+
 def usun_studenta(email):
     if email in studenci:
         del studenci[email]
 
-# Funkcja dodająca studenta
+
 def dodaj_studenta(email, imie, nazwisko, punkty):
     if email in studenci:
         return False
@@ -80,45 +82,8 @@ def dodaj_studenta(email, imie, nazwisko, punkty):
     return True
 
 
-# Funkcja wysyłająca email
-def wyslij_email():
-    # Dane dotyczące serwera SMTP i konta
-    smtp_server = smtplib.SMTP("poczta.interia.pl",587)
-    smtp_server.starttls()
-    smtp_server.login("pablo.sarmiento", "ReaktorWytrzymaXD")
-    message = MIMEMultipart()
-    message["From"]="Pablo"
-    message["To"]="Anatolij"
-    message["Subject"]="DaSvidania"
-    body="Anatolij, 1986 here watch out for your 4th reactor, i suspect its gonna blow up"
-    message.attach(MIMEText(body,"plain"))
-    text = message.as_string()
-    smtp_server.sendmail("pablo.sarmiento@interia.pl","anatolijxd@interia.pl",text)
-    smtp_server.quit()
-
-    # # Tworzenie wiadomości email
-    # msg = f"From: {EMAIL_NADAWCA} <{EMAIL_ADRES}>\n"
-    # msg += f"To: {email}\n"
-    # msg += "Subject: Ocena z przedmiotu Podstawy Programowania Python\n\n"
-    # msg += tresc
-    #
-    # # Wysyłanie wiadomości email
-    # try:
-    #     server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
-    #     server.starttls()
-    #     server.login(EMAIL_ADRES, EMAIL_HASLO)
-    #     server.sendmail(EMAIL_ADRES, email, msg)
-    #     server.quit()
-    #     return True
-    # except Exception as e:
-    #     print(f"Błąd podczas wysyłania emaila na adres {email}: {str(e)}")
-    #     return False
-
-
-# Wczytanie danych z pliku
 wczytaj_dane()
 
-# Główna pętla programu
 while True:
     print("Co chcesz zrobić?")
     print("1 - Wystaw oceny")
@@ -148,16 +113,26 @@ while True:
         else:
             print("Student o podanym adresie email już istnieje.")
     elif wybor == "4":
-        wyslij_email()
-        # tresc = input("Podaj treść wiadomości: ")
-        # for email, dane in studenci.items():
-        #     if dane["status"] != "MAILED":
-        #         if wyslij_email():
-        #             dane["status"] = "MAILED"
-        #             zapisz_dane()
-        #             print(f"Email został wysłany na adres {email}.")
-        #         else:
-        #             print(f"Błąd podczas wysyłania emaila na adres {email}.")
+        for email, dane in studenci.items():
+            if dane["status"] != "MAILED":
+                smtp_server = smtplib.SMTP("poczta.interia.pl", 587)
+                smtp_server.starttls()
+                smtp_server.login("pablo.sarmiento", "ReaktorWytrzymaXD")
+                message = MIMEMultipart()
+                message["From"] = "Pablo"
+                message["To"] = dane["imie"]
+                message["Subject"] = "GRADE"
+                body = f"{dane['imie']} GRADE {dane['ocena']}"
+                message.attach(MIMEText(body, "plain"))
+                text = message.as_string()
+                smtp_server.sendmail("pablo.sarmiento@interia.pl", email, text)
+                smtp_server.quit()
+                dane["status"] = "MAILED"
+                zapisz_dane()
+                print(f"Email został wysłany na adres {email}.")
+            else:
+                print(f"Błąd podczas wysyłania emaila na adres {email}.")
+
     elif wybor == "5":
         break
     else:
